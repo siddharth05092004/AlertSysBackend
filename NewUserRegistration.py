@@ -23,7 +23,7 @@ def update_user_info(email,name,password,phone_number):
     else:
         return {"status": "error", "message": "User not found"}
 
-def update_user_location(email,flatno,city,state,country,pincode):
+def update_user_pincode(email,flatno,city,state,country,pincode):
     query = {"email": email}
     new_values = {"$set": {
         "flatno": flatno,
@@ -34,6 +34,6 @@ def update_user_location(email,flatno,city,state,country,pincode):
     }}
     result = collection_name.update_one(query, new_values)
     if result.matched_count > 0:
-        return {"status": "success", "message": "User location updated successfully"}
+        return {"status": "success", "message": "User pincode updated successfully"}
     else:
         return {"status": "error", "message": "User not found"}
