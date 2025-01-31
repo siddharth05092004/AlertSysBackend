@@ -6,7 +6,7 @@ import json
 from AdminDetailFetch import get_admin_details 
 from UserDetailFetch import get_user_details
 from NewUserRegistration import register_user
-from NotificationUtility import fetch_notification_by_admin, fetch_notification_by_location 
+from NotificationUtility import fetch_notification_by_admin, fetch_notification_by_location, add_notification
 from SendEmailNotification import send_email_notification
 
 app = Flask(__name__)
@@ -86,7 +86,7 @@ def get_notifications_by_location():
         return json.loads(json_util.dumps(result))
 
 @app.route('/api/notification', methods=['POST'])
-def add_notification():
+def add_notification_api():
     data = request.json
     try:
         hash = data.get('hash')
