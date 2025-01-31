@@ -1,10 +1,16 @@
 from MongoDBConnector import get_database
 dbname = get_database()
-collection_name = dbname["user_data"]
+collection_name_user = dbname["user_data"]
+collection_name_admin = dbname["admin_data"]
+
 
 def get_user_details(email, password):
-    user = collection_name.find_one({"email": email, "password": password})
+    user = collection_name_user.find_one({"email": email, "password": password})
     if user:
-        return {"status": "success", "user": user}
+        return {"status": "success", "type" : "user", "user": user}
     else:
-        return {"status": "error", "message": "Invalid email or password"}
+        admin = collection_name_user.find_one({"email": email,"type":"admin", "password": password})
+        if admin:
+            return {"status": "success", "type" : "admin", "user": admin}
+        else:
+            return {"status": "error", "message": "Invalid email or password"}

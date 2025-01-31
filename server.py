@@ -3,9 +3,8 @@ import os
 from bson import json_util
 import json
 
-from AdminDetailFetch import get_admin_details 
 from UserDetailFetch import get_user_details
-from NewUserRegistration import register_user
+from NewUserRegistration import register_user, update_user_info, update_user_location
 from NotificationUtility import fetch_notification_by_admin, fetch_notification_by_location, add_notification
 from SendEmailNotification import send_email_notification
 
@@ -26,6 +25,7 @@ def user_login():
         return json.loads(json_util.dumps(result))
     else:
         return jsonify({'message': 'Invalid Hash'})
+    
 @app.route('/api/user', methods=['POST'])
 def create_user():
     data = request.json
@@ -38,15 +38,29 @@ def create_user():
         email = data.get('email')
         password = data.get('password')
         name = data.get('name')
-        mobile_number = data.get('mobile_number')
-        location = data.get('location')
-        date_of_birth = data.get('date_of_birth')
-        gender = data.get('gender')
-        result = register_user(email, password, name, mobile_number, location, date_of_birth, gender)
+        result = register_user(email, password, name)
         return json.loads(json_util.dumps(result))
-
-@app.route('/api/admin', methods=['GET'])
-def admin_login():
+    
+@app.route('/api/user/location', methods=['PUT'])
+def update_user_location_api():
+    data = request.json
+    try:
+        hash = data.get('hash')
+    except:
+        return jsonify({'message': 'Invalid Hash'})
+    hash = data.get('hash')
+    if hash == os.getenv('HASH'):
+        email = data.get('email')
+        flatno = data.get('flatno')
+        city = data.get('city')
+        state = data.get('state')
+        country = data.get('country')
+        pincode = data.get('pincode')
+        result = update_user_location(email, flatno, city, state, country, pincode)
+        return json.loads(json_util.dumps(result))
+    
+@app.route('/api/user/info', methods=['PUT'])
+def update_user_info_api():
     data = request.json
     try:
         hash = data.get('hash')
@@ -56,7 +70,9 @@ def admin_login():
     if hash == os.getenv('HASH'):
         email = data.get('email')
         password = data.get('password')
-        result = get_admin_details(email, password)
+        name = data.get('name')
+        mobile_number = data.get('mobile_number')
+        result = update_user_location(email, password, name, mobile_number)
         return json.loads(json_util.dumps(result))
 
 @app.route('/api/notification/admin', methods=['GET'])
@@ -100,24 +116,11 @@ def add_notification_api():
         date = data.get('date')
         time = data.get('time')
         text = data.get('text')
-        result = add_notification(email, location, severity, date, time, text)
+        title = data.get('title')
+        result = add_notification(email, location, severity, date, time, title, text)
+        send_email_notification(location, title, text)
         return json.loads(json_util.dumps(result))
 
-@app.route('/api/send_email', methods=['POST'])
-def send_email():
-    data = request.json
-    try:
-        hash = data.get('hash')
-    except:
-        return jsonify({'message': 'Invalid Hash'})
-    hash = data.get('hash')
-    if hash == os.getenv('HASH'):
-        email = data.get('email')
-        name = data.get('name')
-        severity = data.get('severity')
-        body = data.get('body')
-        result = send_email_notification(email, name, severity, body)
-        return json.loads(json_util.dumps(result))
 
 if __name__ == '__main__':
     app.run(debug=True)

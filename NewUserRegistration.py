@@ -2,7 +2,7 @@ from MongoDBConnector import get_database
 dbname = get_database()
 collection_name = dbname["user_data"]
 
-def register_user(email, password, name, mobile_number, location, date_of_birth, gender):
+def register_user(email, password, name):
     if collection_name.find_one({"email": email}):
         return {"status": "error", "message": "User already exists"}
 
@@ -10,12 +10,30 @@ def register_user(email, password, name, mobile_number, location, date_of_birth,
         "email": email,
         "password": password,
         "name": name,
-        "mobile_number": mobile_number,
-        "location": location,
-        "date_of_birth": date_of_birth,
-        "gender": gender
     }
     collection_name.insert_one(new_user)
     return {"status": "success", "message": "User registered successfully"}
 
+def update_user_info(email,name,password,phone_number):
+    query = {"email": email}
+    new_values = {"$set": {"name": name, "password": password, "phone_number": phone_number}}
+    result = collection_name.update_one(query, new_values)
+    if result.matched_count > 0:
+        return {"status": "success", "message": "User information updated successfully"}
+    else:
+        return {"status": "error", "message": "User not found"}
 
+def update_user_location(email,flatno,city,state,country,pincode):
+    query = {"email": email}
+    new_values = {"$set": {
+        "flatno": flatno,
+        "city": city,
+        "state": state,
+        "country": country,
+        "pincode": pincode
+    }}
+    result = collection_name.update_one(query, new_values)
+    if result.matched_count > 0:
+        return {"status": "success", "message": "User location updated successfully"}
+    else:
+        return {"status": "error", "message": "User not found"}
