@@ -19,7 +19,8 @@ def update_user_info(email,name,password,phone_number):
     new_values = {"$set": {"name": name, "password": password, "phone_number": phone_number}}
     result = collection_name.update_one(query, new_values)
     if result.matched_count > 0:
-        return {"status": "success", "message": "User information updated successfully"}
+        user = collection_name.find_one({"email": email, "password": password})
+        return {"status": "success", "message": "User information updated successfully", "user":user}
     else:
         return {"status": "error", "message": "User not found"}
 
@@ -34,6 +35,7 @@ def update_user_pincode(email,flatno,city,state,country,pincode):
     }}
     result = collection_name.update_one(query, new_values)
     if result.matched_count > 0:
-        return {"status": "success", "message": "User pincode updated successfully"}
+        user = collection_name.find_one({"email": email})
+        return {"status": "success", "message": "User pincode updated successfully", "user":user}
     else:
         return {"status": "error", "message": "User not found"}
