@@ -9,10 +9,10 @@ from NotificationUtility import fetch_notification_by_admin, fetch_notification_
 from SendEmailNotification import send_email_notification
 from flask_cors import CORS
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://disaster-management-gray.vercel.app/"}},supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://disaster-management-gray.vercel.app"}},supports_credentials=True)
 @app.after_request
 def after_request(response):
-    response.headers["Access-Control-Allow-Origin"] = "https://disaster-management-gray.vercel.app/"
+    response.headers["Access-Control-Allow-Origin"] = "https://disaster-management-gray.vercel.app"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
     return response
