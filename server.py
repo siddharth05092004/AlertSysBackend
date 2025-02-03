@@ -135,7 +135,7 @@ def add_notification_api():
         title = data.get('title')
         add_latest_notification(email, pincode, severity, date, time, title, text)
         result = add_notification(email, pincode, severity, date, time, title, text)
-        # send_email_notification(pincode, title, text)
+        send_email_notification(pincode, title, text)
         return json.loads(json_util.dumps(result))
 
 
