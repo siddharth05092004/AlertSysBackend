@@ -5,12 +5,21 @@ import json
 
 from UserDetailFetch import get_user_details
 from NewUserRegistration import register_user, update_user_info, update_user_pincode
-from NotificationUtility import fetch_notification_by_admin, fetch_notification_by_pincode, add_notification
+from NotificationUtility import fetch_notification_by_admin, fetch_notification_by_pincode, add_notification, add_latest_notification, fetch_latest_notification
 from SendEmailNotification import send_email_notification
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "https://disaster-management-gray.vercel.app"}},supports_credentials=True)
+@app.after_request
+def after_request(response):
+    response.headers["Access-Control-Allow-Origin"] = "https://disaster-management-gray.vercel.app"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return response
 
-@app.route('/api/user', methods=['GET'])
+
+# working 
+@app.route('/api/userlogin', methods=['POST'])
 def user_login():
     data = request.json
     try:
@@ -26,6 +35,7 @@ def user_login():
     else:
         return jsonify({'message': 'Invalid Hash'})
     
+# working     
 @app.route('/api/user', methods=['POST'])
 def create_user():
     data = request.json
@@ -41,7 +51,9 @@ def create_user():
         result = register_user(email, password, name)
         return json.loads(json_util.dumps(result))
     
-@app.route('/api/user/pincode', methods=['PUT'])
+
+# working
+@app.route('/api/user/pincode', methods=['POST'])
 def update_user_pincode_api():
     data = request.json
     try:
@@ -59,7 +71,9 @@ def update_user_pincode_api():
         result = update_user_pincode(email, flatno, city, state, country, pincode)
         return json.loads(json_util.dumps(result))
     
-@app.route('/api/user/info', methods=['PUT'])
+
+# working
+@app.route('/api/user/info', methods=['POST'])
 def update_user_info_api():
     data = request.json
     try:
@@ -72,10 +86,11 @@ def update_user_info_api():
         password = data.get('password')
         name = data.get('name')
         mobile_number = data.get('mobile_number')
-        result = update_user_pincode(email, password, name, mobile_number)
+        result = update_user_info(email, name, password, mobile_number)
         return json.loads(json_util.dumps(result))
 
-@app.route('/api/notification/admin', methods=['GET'])
+
+@app.route('/api/notification/admin', methods=['POST'])
 def get_notifications_by_admin():
     data = request.json
     try:
@@ -88,7 +103,7 @@ def get_notifications_by_admin():
         result = fetch_notification_by_admin(email)
         return json.loads(json_util.dumps(result))
 
-@app.route('/api/notification/pincode', methods=['GET'])
+@app.route('/api/notification/pincode', methods=['POST'])
 def get_notifications_by_pincode():
     data = request.json
     try:
@@ -100,6 +115,7 @@ def get_notifications_by_pincode():
     if hash == os.getenv('HASH'):
         result = fetch_notification_by_pincode(pincode)
         return json.loads(json_util.dumps(result))
+
 
 @app.route('/api/notification', methods=['POST'])
 def add_notification_api():
@@ -117,10 +133,26 @@ def add_notification_api():
         time = data.get('time')
         text = data.get('text')
         title = data.get('title')
+        add_latest_notification(email, pincode, severity, date, time, title, text)
         result = add_notification(email, pincode, severity, date, time, title, text)
-        send_email_notification(pincode, title, text)
+        # send_email_notification(pincode, title, text)
         return json.loads(json_util.dumps(result))
 
 
+
+@app.route('/api/notification/latest', methods=['POST'])
+def add_latest_notification_api():
+    data = request.json
+    try:
+        hash = data.get('hash')
+    except:
+        return jsonify({'message': 'Invalid Hash'})
+    if hash == os.getenv('HASH'):
+        pincode = data.get('pincode')
+        result = fetch_latest_notification(pincode)
+        return json.loads(json_util.dumps(result))
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.getenv("PORT", 5000))  # Use Render's provided port or default to 5000
+    app.run(host="0.0.0.0", port=port, debug=True)
