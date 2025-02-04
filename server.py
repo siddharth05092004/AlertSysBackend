@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import os
 from bson import json_util
 import json
+import hashlib
 
 from UserDetailFetch import get_user_details
 from NewUserRegistration import register_user, update_user_info, update_user_pincode
@@ -30,6 +31,7 @@ def user_login():
     if hash == os.getenv('HASH'):
         email = data.get('email')
         password = data.get('password')
+        password = hashlib.md5(password.encode()).hexdigest()
         result = get_user_details(email, password)
         return json.loads(json_util.dumps(result))
     else:
@@ -47,6 +49,7 @@ def create_user():
     if hash == os.getenv('HASH'):
         email = data.get('email')
         password = data.get('password')
+        password = hashlib.md5(password.encode()).hexdigest()
         name = data.get('name')
         result = register_user(email, password, name)
         return json.loads(json_util.dumps(result))
@@ -84,6 +87,7 @@ def update_user_info_api():
     if hash == os.getenv('HASH'):
         email = data.get('email')
         password = data.get('password')
+        password = hashlib.md5(password.encode()).hexdigest()
         name = data.get('name')
         mobile_number = data.get('mobile_number')
         result = update_user_info(email, name, password, mobile_number)
